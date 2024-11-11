@@ -23,7 +23,7 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/spencerkimball/stargazers/cmd"
+	"github.com/YOUR_USERNAME/stargazers/cmd" // fork repo and use local
 	"github.com/spf13/cobra"
 	"github.com/spf13/cobra/doc"
 )

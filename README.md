@@ -1,9 +1,15 @@
 ## stargazers
 
-illuminate your GitHub community by delving into your repo's stars
+Analyze your GitHub repository's stargazers.
 
-### Synopsis
+### Quick Start
 
+1. **Fork & Clone**
+   ```bash
+   # Fork https://github.com/spencerkimball/stargazers first, then:
+   git clone https://github.com/YOUR_USERNAME/stargazers.git
+   cd stargazers
+   ```
 
 
 GitHub allows visitors to star a repo to bookmark it for later
@@ -23,15 +29,32 @@ Basic starting point:
 5. Run analyses on stargazer data
 
 
-```
-stargazers :owner/:repo --token=:access_token
-```
+2. **Initialize Module**
+   ```bash
+   rm -f go.mod go.sum
+   go mod init github.com/YOUR_USERNAME/stargazers
+   go mod tidy
+   ```
 
-### Examples
+3. **Get GitHub Token**
+   - GitHub.com → Settings → Developer Settings → Personal Access Tokens
+   - Generate new token (classic)
+   - Select: `public_repo`, `read:user`
+   - Copy token
 
-```
-  stargazers cockroachdb/cockroach --token=f87456b1112dadb2d831a5792bf2ca9a6afca7bc
-```
+4. Replace import in main.go
+   In `main.go`, replace `YOUR_USERNAME` with your GitHub username.
+
+   ```go
+   import "github.com/YOUR_USERNAME/stargazers/cmd"
+   ```
+
+
+5. **Run**
+   ```bash
+   go build
+   ./stargazers fetch --repo=OWNER/REPO --token=YOUR_TOKEN
+   ```
 
 ### Options
 

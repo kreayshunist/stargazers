@@ -25,6 +25,7 @@ import (
 	"net/http"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -59,7 +60,7 @@ func (e *httpError) Error() string {
 }
 
 // linkRE provides parsing of the "Link" HTTP header directive.
-var linkRE = regexp.MustCompile(`^<(.*)>; rel="next", <(.*)>; rel="last".*`)
+var linkRE = regexp.MustCompile(`<([^>]+)>;\s*rel="([^"]+)"`) // update to match new format
 
 // fetchURL fetches the specified URL. The cache (specified in
 // c.CacheDir) is consulted first and if not found, the specified URL
@@ -129,9 +130,13 @@ func fetchURL(c *Context, url string, value interface{}, refresh bool) (string, 
 
 		// Parse the next link, if available.
 		if link := resp.Header.Get("Link"); len(link) > 0 {
-			urls := linkRE.FindStringSubmatch(link)
-			if urls != nil {
-				next = urls[1]
+			links := strings.Split(link, ",")
+			for _, l := range links {
+				matches := linkRE.FindStringSubmatch(strings.TrimSpace(l))
+				if len(matches) == 3 && matches[2] == "next" {
+					next = matches[1]
+					break
+				}
 			}
 		}
 		// If there is no next page and we used cached; clear resp for
