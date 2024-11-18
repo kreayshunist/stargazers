@@ -34,14 +34,14 @@ import (
 
 const (
 	githubAPI     = "https://api.github.com/"
-	maxStarred    = 300 // Max starred repos to query per stargazer
-	maxSubscribed = 300 // Max subscribed repos to query per stargazer
+	maxStarred    = 0 // Max starred repos to query per stargazer
+	maxSubscribed = 0 // Max subscribed repos to query per stargazer
 
 	// To consider a subscribed repo for a stargazer's contributions,
 	// it must match at least one of these thresholds...
-	minStargazers = 25
-	minForks      = 10
-	minOpenIssues = 10
+	minStargazers = 0
+	minForks      = 0
+	minOpenIssues = 0
 )
 
 // Context holds config information used to query GitHub.

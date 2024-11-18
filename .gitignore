@@ -2,3 +2,11 @@
 *~
 stargazers
 stargazer_cache/
+
+.env
+email_reachout
+output
+web-scrap
+
+go.mod
+go.sum
