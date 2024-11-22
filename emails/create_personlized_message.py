@@ -63,27 +63,37 @@ Rules:
 """,
         },
     ]
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o",
+            messages=messages,
+            response_format={"type": "json_object"},
+            temperature=0.7,
+        )
 
-    response = client.chat.completions.create(
-        model="gpt-4o",
-        messages=messages,
-        response_format={"type": "json_object"},
-        temperature=0.7,
-    )
+        # Parse JSON response (will be in format {username1: message1, username2: message2, ...})
+        import json
 
-    # Parse JSON response (will be in format {username1: message1, username2: message2, ...})
-    import json
+        user_dict = json.loads(response.choices[0].message.content)
+        # Map the messages back to the dataframe order
+        intros_list = [
+            user_dict.get(username, {}).get("intro", "") for username in chunk["Login"]
+        ]
+        scores_list = [
+            user_dict.get(username, {}).get("score", 0) for username in chunk["Login"]
+        ]
+        actual_usernames_count = sum(1 for intro in intros_list if intro)
 
-    user_dict = json.loads(response.choices[0].message.content)
+    except Exception as e:
+        print(f"Error generating personalized intros: {e}")
+        # fallback
+        intros_list = []
+        scores_list = [0] * len(chunk)
+        actual_usernames_count = len(chunk)
 
-    # Map the messages back to the dataframe order
-    intros_list = [
-        user_dict.get(username, {}).get("intro", "") for username in chunk["Login"]
-    ]
-    scores_list = [
-        user_dict.get(username, {}).get("score", 0) for username in chunk["Login"]
-    ]
-    actual_usernames_count = sum(1 for intro in intros_list if intro)
+        for i in range(len(chunk)):
+            intros_list.append(f"Hi {chunk.iloc[i]['Name']}, I found you on GitHub.")
+
     print(f"Number of usernames with intros: {actual_usernames_count}/{len(chunk)}")
     return intros_list, scores_list
 
@@ -93,8 +103,21 @@ checkpoint_file = "emails/checkpoint_intros.txt"
 checkpoint_file_scores = "emails/checkpoint_scores.txt"
 all_intros = []
 all_scores = []
-for i, chunk in enumerate(chunks):
-    print(f"Processing chunk {i+1}/{len(chunks)}")
+# read in files and continue
+if os.path.exists(checkpoint_file):
+    print(f"Resuming from checkpoint {checkpoint_file}")
+    with open(checkpoint_file, "r") as f:
+        all_intros = f.read().splitlines()
+if os.path.exists(checkpoint_file_scores):
+    print(f"Resuming from checkpoint {checkpoint_file_scores}")
+    with open(checkpoint_file_scores, "r") as f:
+        all_scores = f.read().splitlines()
+assert len(all_intros) == len(all_scores), "Length of intros and scores must match"
+
+l = len(all_intros)
+print(f"Resuming from {l}")
+for i, chunk in enumerate(chunks[l:]):
+    print(f"Processing chunk {l+i+1}/{len(chunks)}")
     chunk_intros, chunk_scores = generate_personalized_intros(chunk)
     all_intros.extend(chunk_intros)
     all_scores.extend(chunk_scores)
