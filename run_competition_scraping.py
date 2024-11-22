@@ -48,12 +48,6 @@ def main():
                 check=False,  # Don't raise exception on non-zero exit
             )
 
-            # Print output in real-time
-            print("STDOUT:")
-            print(result.stdout)
-            print("STDERR:")
-            print(result.stderr)
-
             if result.returncode != 0:
                 print(f"Error processing {repo} (exit code {result.returncode})")
             else:

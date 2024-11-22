@@ -17,6 +17,7 @@
 package fetch
 
 import (
+	"encoding/csv"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -34,14 +35,14 @@ import (
 
 const (
 	githubAPI     = "https://api.github.com/"
-	maxStarred    = 300 // Max starred repos to query per stargazer
-	maxSubscribed = 300 // Max subscribed repos to query per stargazer
+	maxStarred    = 0 // Max starred repos to query per stargazer
+	maxSubscribed = 0 // Max subscribed repos to query per stargazer
 
 	// To consider a subscribed repo for a stargazer's contributions,
 	// it must match at least one of these thresholds...
-	minStargazers = 25
-	minForks      = 10
-	minOpenIssues = 10
+	minStargazers = 0
+	minForks      = 0
+	minOpenIssues = 0
 )
 
 // Context holds config information used to query GitHub.
@@ -227,25 +228,25 @@ func QueryAll(c *Context) error {
 		return err
 	}
 	// Query followers for all stargazers.
-	if err = QueryFollowers(c, sg); err != nil {
-		return err
-	}
+	// if err = QueryFollowers(c, sg); err != nil {
+	// 	return err
+	// }
 
 	// Unique map of repos by repo full name.
 	rs := map[string]*Repo{}
 
-	// Query starred repos for all stargazers.
-	if err = QueryStarred(c, sg, rs); err != nil {
-		return err
-	}
-	// Query subscribed repos for all stargazers.
-	if err = QuerySubscribed(c, sg, rs); err != nil {
-		return err
-	}
-	// Query contributions to subscribed repos for all stargazers.
-	if err = QueryContributions(c, sg, rs); err != nil {
-		return err
-	}
+	// // Query starred repos for all stargazers.
+	// if err = QueryStarred(c, sg, rs); err != nil {
+	// 	return err
+	// }
+	// // Query subscribed repos for all stargazers.
+	// if err = QuerySubscribed(c, sg, rs); err != nil {
+	// 	return err
+	// }
+	// // Query contributions to subscribed repos for all stargazers.
+	// if err = QueryContributions(c, sg, rs); err != nil {
+	// 	return err
+	// }
 	return SaveState(c, sg, rs)
 }
 
@@ -272,14 +273,50 @@ func QueryStargazers(c *Context) ([]*Stargazer, error) {
 	return stargazers, nil
 }
 
-// QueryUserInfo queries user info for each stargazer.
+// QueryUserInfo queries user info for each stargazer and saves to CSV
 func QueryUserInfo(c *Context, sg []*Stargazer) error {
 	log.Printf("querying user info for each of %s stargazers...", format(len(sg)))
-	fmt.Printf("*** user info for 0 stargazers")
+	
+	// Create CSV file with repo name - save 
+	// repoowner_repo_emails.csv
+	repoName := strings.Replace(c.Repo, "/", "_", -1)
+	csvPath := filepath.Join("email_reachout", repoName+"_emails.csv")
+	
+	file, err := os.Create(csvPath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	writer := csv.NewWriter(file)
+	defer writer.Flush()
+
+	// Write header
+	header := []string{"Login", "Email", "Name", "Company", "Location", "Bio", "Followers", "Following"}
+	if err := writer.Write(header); err != nil {
+		return err
+	}
+
 	for i, s := range sg {
 		if _, err := fetchURL(c, s.URL, &s.User, false); err != nil {
 			return err
 		}
+
+		// Write user data to CSV
+		row := []string{
+			s.User.Login,
+			s.User.Email,
+			s.User.Name,
+			s.User.Company,
+			s.User.Location,
+			s.User.Bio,
+			strconv.Itoa(s.User.Followers),
+			strconv.Itoa(s.User.Following),
+		}
+		if err := writer.Write(row); err != nil {
+			return err
+		}
+
 		fmt.Printf("\r*** user info for %s stargazers", format(i+1))
 	}
 	fmt.Printf("\n")
