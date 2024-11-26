@@ -4,14 +4,14 @@
 
 ## 🎯 What is this?
 
-Stargazer Analytics is a powerful tool that helps you understand and connect with the developers who star your GitHub repositories. Instead of treating stars as just numbers, we help you discover the developers behind them.
+Stargazer Analytics helps you understand and connect with the developers who star your GitHub repositories. Instead of treating stars as just numbers, we help you discover the developers behind them.
 
 ## ✨ Features
 
 - 🔍 **Deep Analysis**: Understand who's interested in your project
 - 🎯 **Interest Discovery**: Find what other repos your stargazers love
+- 📧 **Email Discovery**: Get emails of around 20% of your stargazers 
 - 📊 **Smart Scoring**: Auto-score how well each stargazer fits your project
-- 📧 **Email Discovery**: Get contact information for potential collaborators (you can get email of around 20% of your stargazers)
 - 💌 **AI-Powered Intros**: Generate personalized outreach messages
 
 ## 🚀 Quick Start
