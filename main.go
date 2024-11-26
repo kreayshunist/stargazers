@@ -96,6 +96,13 @@ func runGenDoc(c *cobra.Command, args []string) error {
 	return doc.GenMarkdown(stargazersCmd, os.Stdout)
 }
 
+var (
+	repoFlag   string
+	tokenFlag  string
+	cacheFlag  string
+	modeFlag   string
+)
+
 func init() {
 	stargazersCmd.AddCommand(
 		cmd.AnalyzeCmd,
@@ -110,9 +117,10 @@ func init() {
 		pf.Var(pflagValue{f.Value}, normalizeStdFlagName(f.Name), f.Usage)
 	})
 	// Add persistent flags to the top-level command.
-	stargazersCmd.PersistentFlags().StringVarP(&cmd.Repo, "repo", "r", "", cmd.RepoDesc)
-	stargazersCmd.PersistentFlags().StringVarP(&cmd.AccessToken, "token", "t", "", cmd.AccessTokenDesc)
-	stargazersCmd.PersistentFlags().StringVarP(&cmd.CacheDir, "cache", "c", "./stargazer_cache", cmd.CacheDirDesc)
+	stargazersCmd.PersistentFlags().StringVarP(&repoFlag, "repo", "r", "", "GitHub owner and repository (format: owner/repo)")
+	stargazersCmd.PersistentFlags().StringVarP(&tokenFlag, "token", "t", "", "GitHub access token")
+	stargazersCmd.PersistentFlags().StringVarP(&cacheFlag, "cache", "c", "./stargazer_cache", "Cache directory")
+	stargazersCmd.PersistentFlags().StringVarP(&modeFlag, "mode", "m", "basic", "Analysis mode: 'basic' or 'full'")
 }
 
 // Run ...

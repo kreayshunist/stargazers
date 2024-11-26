@@ -33,37 +33,39 @@ go mod tidy
 3. Select scopes: `public_repo`, `read:user`
 4. Copy your token
 
-### 3. Customize Analysis
+### 3. Choose Analysis Mode
 
-Choose your analysis mode in `fetch/query.go`:
+You can run the tool in two modes:
 
-#### Deep Analysis Mode (get repos your stargazers are interested in)
-```go
-const (
-    maxStarred    = 100  // Starred repos per user
-    maxSubscribed = 100  // Subscribed repos per user
-    minStargazers = 300  // Popularity threshold
-    minForks      = 30   // Fork threshold
-    minOpenIssues = 3    // Activity threshold
-)
-```
-
-#### Quick Email Mode (get only your stargazers' profils like email addresses)
-```go
-const (
-    maxStarred    = 0
-    maxSubscribed = 0
-    minStargazers = 0
-    minForks      = 0
-    minOpenIssues = 0
-)
-```
-
-### 4. Run Analysis
+#### Basic Mode -Information about your stargazers (Email Collection)
 ```bash
-go build
-./stargazers fetch --repo=OWNER/REPO --token=YOUR_TOKEN
+# Only collect stargazer profiles and emails
+./stargazers fetch --repo=OWNER/REPO --token=YOUR_TOKEN --mode=basic
 ```
+
+#### Full Analysis Mode - Repository Correlation
+```bash
+# Full analysis including starred repos and contributions
+./stargazers fetch --repo=OWNER/REPO --token=YOUR_TOKEN --mode=full
+```
+
+The modes automatically set the appropriate parameters:
+
+- **Basic Mode** (--mode=basic):
+  - Collects only stargazer profiles and emails
+  - Faster execution
+  - Lower API usage
+  - Outputs to `emails/OWNER_REPO_emails.csv`
+  - To scrap many repos, you can use [`competition_scraping.py`](competition_scraping.py) with a csv file containing the repo names.
+
+- **Full Analysis Mode** (--mode=full):
+  - Analyzes correlated repositories
+  - Collects stargazer interests
+  - Maps contribution patterns
+  - Higher API usage
+  - Provides complete analysis data
+  - analyse with: `./stargazers analyze --repo=OWNER/REPO --token=YOUR_TOKEN --mode=full`
+
 
 ## 🛠 Advanced Options
 
@@ -72,6 +74,7 @@ Options:
   -r, --repo string        GitHub repository (format: owner/repo)
   -t, --token string       GitHub access token
   -c, --cache string       Cache directory (default: "./stargazer_cache")
+  -m, --mode string        Analysis mode (default: "basic")
       --verbosity          Log level for verbose output
       --no-color          Disable colored output
 ```
@@ -79,8 +82,8 @@ Options:
 ### 5. Analysis Tools
 
 I drafted some scripts to analyze the data - but depending on your use case I advise you to just generate your own.
-- **Data Visualization**: Plotting scripts in `/utils`
-- **Email Generation**: AI-powered personalized intro generator in `/emails`. Rank your leads by the score. I also recommend to filter by region (just add to the system prompt).
+- **Data Visualization**: Plotting scripts in [`/utils`](utils)
+- **Email Generation**: AI-powered personalized intro generator in [`/emails`](emails). Rank your leads by the score. I also recommend to filter by region (just add to the system prompt).
 
 ### 6. Email Sending Recommendations
 

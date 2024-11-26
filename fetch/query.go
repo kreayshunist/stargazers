@@ -50,6 +50,7 @@ type Context struct {
 	Repo     string // Repository (:owner/:repo)
 	Token    string // Access token
 	CacheDir string // Cache directory
+	Mode     string // Analysis mode: "full" or "basic"
 
 	acceptHeader string // Optional Accept: header value
 }
@@ -227,26 +228,26 @@ func QueryAll(c *Context) error {
 	if err = QueryUserInfo(c, sg); err != nil {
 		return err
 	}
-	// Query followers for all stargazers.
-	// if err = QueryFollowers(c, sg); err != nil {
-	// 	return err
-	// }
 
 	// Unique map of repos by repo full name.
 	rs := map[string]*Repo{}
 
-	// // Query starred repos for all stargazers.
-	// if err = QueryStarred(c, sg, rs); err != nil {
-	// 	return err
-	// }
-	// // Query subscribed repos for all stargazers.
-	// if err = QuerySubscribed(c, sg, rs); err != nil {
-	// 	return err
-	// }
-	// // Query contributions to subscribed repos for all stargazers.
-	// if err = QueryContributions(c, sg, rs); err != nil {
-	// 	return err
-	// }
+	// Only run these queries in full mode
+	if c.Mode == "full" {
+		if err = QueryFollowers(c, sg); err != nil {
+			return err
+		}
+		if err = QueryStarred(c, sg, rs); err != nil {
+			return err
+		}
+		if err = QuerySubscribed(c, sg, rs); err != nil {
+			return err
+		}
+		if err = QueryContributions(c, sg, rs); err != nil {
+			return err
+		}
+	}
+
 	return SaveState(c, sg, rs)
 }
 
@@ -280,7 +281,7 @@ func QueryUserInfo(c *Context, sg []*Stargazer) error {
 	// Create CSV file with repo name - save 
 	// repoowner_repo_emails.csv
 	repoName := strings.Replace(c.Repo, "/", "_", -1)
-	csvPath := filepath.Join("email_reachout", repoName+"_emails.csv")
+	csvPath := filepath.Join("emails", repoName+"_emails.csv")
 	
 	file, err := os.Create(csvPath)
 	if err != nil {
@@ -543,3 +544,4 @@ func format(n int) string {
 		}
 	}
 }
+

@@ -38,6 +38,7 @@ def main():
                 f"--repo={repo}",
                 f"--token={github_token}",
                 "--cache=./stargazer_cache",
+                "--mode=basic",
             ]
 
             print(f"Running command: {' '.join(cmd)}")
