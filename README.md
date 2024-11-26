@@ -78,12 +78,14 @@ Options:
 
 ### 5. Analysis Tools
 
+I drafted some scripts to analyze the data - but depending on your use case I advise you to just generate your own.
 - **Data Visualization**: Plotting scripts in `/utils`
-- **Email Generation**: AI-powered personalized intro generator in `/emails`
+- **Email Generation**: AI-powered personalized intro generator in `/emails`. Rank your leads by the score. I also recommend to filter by region (just add to the system prompt).
 
 ### 6. Email Sending Recommendations
 
 For sending emails, I used Instantly. Do not send more than 30 emails per email address per day to avoid being flagged as spam.
+1 email address cost there around 5 USD per month + 15 USD per year for the domain + 90 USD per month for the tool.
 
 ## 📊 Stats
 
