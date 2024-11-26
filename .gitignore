@@ -14,3 +14,7 @@ go.sum
 output
 
 stargazer_analysis
+email_reachout_cache/
+emails/
+
+.DS_Store
