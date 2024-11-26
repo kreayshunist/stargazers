@@ -1,7 +1,7 @@
 data_dir = "email_reachout"
 
 
-# read all csv files in data_dir and combine them into a single dataframe each gets a column for the repo name and ownder (seperated by _) without the _emails.csv suffix
+# read all csv files in data_dir of competition_scraping.py and combine them into a single dataframe each gets a column for the repo name and ownder (seperated by _) without the _emails.csv suffix
 import os
 import re
 

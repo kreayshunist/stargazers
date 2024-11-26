@@ -1,72 +1,107 @@
-## stargazers
+# ⭐️ Stargazer Analytics
 
-Analyze your GitHub repository's stargazers.
+> Transform your GitHub stars into meaningful connections. Analyze, understand, and engage with your repository's stargazers.
 
-### Quick Start
+## 🎯 What is this?
 
-1. **Fork & Clone**
-   ```bash
-   # Fork https://github.com/spencerkimball/stargazers first, then:
-   git clone https://github.com/YOUR_USERNAME/stargazers.git
-   cd stargazers
-   ```
+Stargazer Analytics is a powerful tool that helps you understand and connect with the developers who star your GitHub repositories. Instead of treating stars as just numbers, we help you discover the developers behind them.
 
+## ✨ Features
 
-GitHub allows visitors to star a repo to bookmark it for later
-perusal. Stars represent a casual interest in a repo, and when enough
-of them accumulate, it's natural to wonder what's driving interest.
-Stargazers attempts to get a handle on who these users are by finding
-out what else they've starred, which other repositories they've
-contributed to, and who's following them on GitHub.
+- 🔍 **Deep Analysis**: Understand who's interested in your project
+- 🎯 **Interest Discovery**: Find what other repos your stargazers love
+- 📊 **Smart Scoring**: Auto-score how well each stargazer fits your project
+- 📧 **Email Discovery**: Get contact information for potential collaborators (you can get email of around 20% of your stargazers)
+- 💌 **AI-Powered Intros**: Generate personalized outreach messages
 
-Basic starting point:
+## 🚀 Quick Start
 
-1. List all stargazers
-2. Fetch user info for each stargazer
-3. For each stargazer, get list of starred repos & subscriptions
-4. For each stargazer subscription, query the repo statistics to
-   get additions / deletions & commit counts for that stargazer
-5. Run analyses on stargazer data
+### 1. Setup
+```bash
+# Clone the repository
+git clone https://github.com/YOUR_USERNAME/stargazers.git
+cd stargazers
 
-
-2. **Initialize Module**
-   ```bash
-   rm -f go.mod go.sum
-   go mod init github.com/YOUR_USERNAME/stargazers
-   go mod tidy
-   ```
-
-3. **Get GitHub Token**
-   - GitHub.com → Settings → Developer Settings → Personal Access Tokens
-   - Generate new token (classic)
-   - Select: `public_repo`, `read:user`
-   - Copy token
-
-4. Replace import in main.go
-   In `main.go`, replace `YOUR_USERNAME` with your GitHub username.
-
-   ```go
-   import "github.com/YOUR_USERNAME/stargazers/cmd"
-   ```
-
-
-5. **Run**
-   ```bash
-   go build
-   ./stargazers fetch --repo=OWNER/REPO --token=YOUR_TOKEN
-   ```
-
-### Options
-
+# Initialize Go module
+go mod init github.com/YOUR_USERNAME/stargazers
+go mod tidy
 ```
-      --alsologtostderr    logs at or above this threshold go to stderr (default NONE)
-  -c, --cache string       directory for storing cached GitHub API responses (default "./stargazer_cache")
-      --log-backtrace-at   when logging hits line file:N, emit a stack trace (default :0)
-      --log-dir            if non-empty, write log files in this directory (default /var/folders/83/r_nmcwd969g5qc0b7my9wl900000gn/T/)
-      --logtostderr        log to standard error instead of files (default true)
-      --no-color           disable standard error log colorization
-  -r, --repo string        GitHub owner and repository, formatted as :owner/:repo
-  -t, --token string       GitHub access token for authorized rate limits
-      --verbosity          log level for V logs
-      --vmodule            comma-separated list of pattern=N settings for file-filtered logging
+
+### 2. Configure GitHub Token
+1. Visit GitHub.com → Settings → Developer Settings → Personal Access Tokens
+2. Generate new token (classic)
+3. Select scopes: `public_repo`, `read:user`
+4. Copy your token
+
+### 3. Customize Analysis
+
+Choose your analysis mode in `fetch/query.go`:
+
+#### Deep Analysis Mode (get repos your stargazers are interested in)
+```go
+const (
+    maxStarred    = 100  // Starred repos per user
+    maxSubscribed = 100  // Subscribed repos per user
+    minStargazers = 300  // Popularity threshold
+    minForks      = 30   // Fork threshold
+    minOpenIssues = 3    // Activity threshold
+)
 ```
+
+#### Quick Email Mode (get only your stargazers' profils like email addresses)
+```go
+const (
+    maxStarred    = 0
+    maxSubscribed = 0
+    minStargazers = 0
+    minForks      = 0
+    minOpenIssues = 0
+)
+```
+
+### 4. Run Analysis
+```bash
+go build
+./stargazers fetch --repo=OWNER/REPO --token=YOUR_TOKEN
+```
+
+## 🛠 Advanced Options
+
+```bash
+Options:
+  -r, --repo string        GitHub repository (format: owner/repo)
+  -t, --token string       GitHub access token
+  -c, --cache string       Cache directory (default: "./stargazer_cache")
+      --verbosity          Log level for verbose output
+      --no-color          Disable colored output
+```
+
+### 5. Analysis Tools
+
+- **Data Visualization**: Plotting scripts in `/utils`
+- **Email Generation**: AI-powered personalized intro generator in `/emails`
+
+### 6. Email Sending Recommendations
+
+For sending emails, I used Instantly. Do not send more than 30 emails per email address per day to avoid being flagged as spam.
+
+## 📊 Stats
+
+- Scraped over 2 days 140k stargazers of related repos
+- Got 20k unique email addresses with profiles
+- Scored them between 0 and 1
+- Started sending for top 1k emails
+- 6% booked a 15 min call for user interviews
+
+## 📜 License
+
+Big thanks to [spencerkimball](https://github.com/spencerkimball) for the initial implementation from 2019. 
+I updated the code for the current api - and integrated everything around emails. 
+
+Apache License 2.0 - See [LICENSE](LICENSE) for details
+
+---
+
+<p align="center">
+Made with ❤️ for the open source community
+</p>
