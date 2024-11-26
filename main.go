@@ -23,6 +23,7 @@ import (
 	"reflect"
 	"strings"
 
+	// NOTE: change magmueller to your username
 	"github.com/magmueller/stargazers/cmd" // fork repo and use local
 	"github.com/spf13/cobra"
 	"github.com/spf13/cobra/doc"

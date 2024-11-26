@@ -23,8 +23,12 @@ git clone https://github.com/YOUR_USERNAME/stargazers.git
 cd stargazers
 
 # Initialize Go module
-go mod init github.com/YOUR_USERNAME/stargazers
-go mod tidy
+go mod init github.com/YOUR_USERNAME/stargazers && go mod tidy
+```
+
+In [`main.go`](main.go) change the import to your username:
+```go
+"github.com/YOUR_USERNAME/stargazers/cmd" // change to your username
 ```
 
 ### 2. Configure GitHub Token
@@ -42,6 +46,12 @@ You can run the tool in two modes:
 # Only collect stargazer profiles and emails
 ./stargazers fetch --repo=OWNER/REPO --token=YOUR_TOKEN --mode=basic
 ```
+- **Basic Mode** (--mode=basic):
+  - Collects only stargazer profiles and emails
+  - Faster execution
+  - Lower API usage
+  - Outputs to `emails/OWNER_REPO_emails.csv`
+  - To scrap many repos, you can use [`competition_scraping.py`](competition_scraping.py) with a csv file containing the repo names.
 
 #### Full Analysis Mode - Repository Correlation
 ```bash
@@ -51,12 +61,6 @@ You can run the tool in two modes:
 
 The modes automatically set the appropriate parameters:
 
-- **Basic Mode** (--mode=basic):
-  - Collects only stargazer profiles and emails
-  - Faster execution
-  - Lower API usage
-  - Outputs to `emails/OWNER_REPO_emails.csv`
-  - To scrap many repos, you can use [`competition_scraping.py`](competition_scraping.py) with a csv file containing the repo names.
 
 - **Full Analysis Mode** (--mode=full):
   - Analyzes correlated repositories
