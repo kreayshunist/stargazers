@@ -24,7 +24,6 @@ import (
 
 // AccessToken is used to access repo stars and gain non-authorized
 // rate limits.
-var AccessToken string
 
 // AccessTokenDesc describes usage.
 const AccessTokenDesc = "GitHub access token for authorized rate limits"
@@ -44,14 +43,10 @@ When creating a token, ensure that only the public_repo permission is enabled.
 	return AccessToken, nil
 }
 
-// CacheDir specifies where to store cached JSON responses.
-var CacheDir string
 
 // CacheDirDesc describes usage.
 const CacheDirDesc = "directory for storing cached GitHub API responses"
 
-// Repo specifies the the owner and repository in :owner/:repo format.
-var Repo string
 
 // RepoDesc describes usage.
 const RepoDesc = "GitHub owner and repository, formatted as :owner/:repo"

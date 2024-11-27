@@ -16,13 +16,43 @@
 
 package cmd
 
+// ExtendedContext
+
 import (
 	"errors"
+	"fmt"
 	"log"
 
-	"github.com/spencerkimball/stargazers/fetch"
+	"github.com/magmueller/stargazers/fetch"
 	"github.com/spf13/cobra"
 )
+
+// ExtendedContext wraps the original Context and adds mode support
+type ExtendedContext struct {
+    fetch.Context  // Embed the original Context
+    Mode string // Add mode field
+}
+
+// NewContext creates a new ExtendedContext with the specified parameters
+func NewContext(repo, token, cacheDir, mode string) *ExtendedContext {
+    return &ExtendedContext{
+        Context: fetch.Context{
+            Repo:     repo,
+            Token:    token,
+            CacheDir: cacheDir,
+        },
+        Mode: mode,
+    }
+}
+
+// GetBaseContext returns the underlying Context for compatibility
+func (ec *ExtendedContext) GetBaseContext() *fetch.Context {
+    return &fetch.Context{
+        Repo:     ec.Repo,
+        Token:    ec.Token,
+        CacheDir: ec.CacheDir,
+    }
+}
 
 // FetchCmd recursively fetches stargazer github data.
 var FetchCmd = &cobra.Command{
@@ -40,6 +70,10 @@ fetched data is cached by URL.
 	RunE:    RunFetch,
 }
 
+
+// RunFetch recursively queries all relevant github data for
+// the specified owner and repo.
+
 // RunFetch recursively queries all relevant github data for
 // the specified owner and repo.
 func RunFetch(cmd *cobra.Command, args []string) error {
@@ -51,14 +85,20 @@ func RunFetch(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	log.Printf("fetching GitHub data for repository %s", Repo)
-	fetchCtx := &fetch.Context{
-		Repo:     Repo,
-		Token:    token,
-		CacheDir: CacheDir,
+	ctx := NewContext(Repo, token, CacheDir, Mode)
+	if err := validateMode(ctx); err != nil {
+		return err
 	}
-	if err := fetch.QueryAll(fetchCtx); err != nil {
+	if err := fetch.QueryAll(ctx.GetBaseContext()); err != nil {
 		log.Printf("failed to query stargazer data: %s", err)
 		return nil
+	}
+	return nil
+}
+
+func validateMode(ctx *ExtendedContext) error {
+	if ctx.Mode != "basic" && ctx.Mode != "full" {
+		return fmt.Errorf("invalid mode: %s. Use 'basic' or 'full'", ctx.Mode)
 	}
 	return nil
 }

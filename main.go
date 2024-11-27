@@ -25,6 +25,8 @@ import (
 
 	// NOTE: change magmueller to your username
 	"github.com/magmueller/stargazers/cmd" // fork repo and use local
+	// fork repo and use local
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/cobra/doc"
 )
@@ -97,13 +99,6 @@ func runGenDoc(c *cobra.Command, args []string) error {
 	return doc.GenMarkdown(stargazersCmd, os.Stdout)
 }
 
-var (
-	repoFlag   string
-	tokenFlag  string
-	cacheFlag  string
-	modeFlag   string
-)
-
 func init() {
 	stargazersCmd.AddCommand(
 		cmd.AnalyzeCmd,
@@ -111,17 +106,12 @@ func init() {
 		cmd.FetchCmd,
 		genDocCmd,
 	)
-	// Map any flags registered in the standard "flag" package into the
-	// top-level command.
-	pf := stargazersCmd.PersistentFlags()
-	flag.VisitAll(func(f *flag.Flag) {
-		pf.Var(pflagValue{f.Value}, normalizeStdFlagName(f.Name), f.Usage)
-	})
-	// Add persistent flags to the top-level command.
-	stargazersCmd.PersistentFlags().StringVarP(&repoFlag, "repo", "r", "", "GitHub owner and repository (format: owner/repo)")
-	stargazersCmd.PersistentFlags().StringVarP(&tokenFlag, "token", "t", "", "GitHub access token")
-	stargazersCmd.PersistentFlags().StringVarP(&cacheFlag, "cache", "c", "./stargazer_cache", "Cache directory")
-	stargazersCmd.PersistentFlags().StringVarP(&modeFlag, "mode", "m", "basic", "Analysis mode: 'basic' or 'full'")
+
+	// Change FetchCmd.PersistentFlags() to FetchCmd.Flags()
+	cmd.FetchCmd.Flags().StringVarP(&cmd.Repo, "repo", "r", "", "GitHub owner and repository (format: owner/repo)")
+	cmd.FetchCmd.Flags().StringVarP(&cmd.AccessToken, "token", "t", "", "GitHub access token")
+	cmd.FetchCmd.Flags().StringVarP(&cmd.CacheDir, "cache", "c", "./stargazer_cache", "Cache directory")
+	cmd.FetchCmd.Flags().StringVarP(&cmd.Mode, "mode", "m", "basic", "Analysis mode: 'basic' or 'full'")
 }
 
 // Run ...

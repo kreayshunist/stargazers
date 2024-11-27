@@ -35,22 +35,25 @@ import (
 
 const (
 	githubAPI     = "https://api.github.com/"
-	maxStarred    = 100 // Max starred repos to query per stargazer
-	maxSubscribed = 100 // Max subscribed repos to query per stargazer
-
-	// To consider a subscribed repo for a stargazer's contributions,
-	// it must match at least one of these thresholds...
-	minStargazers = 300
-	minForks      = 30
-	minOpenIssues = 3
 )
+
+var (
+	maxStarredVal    = 100
+	maxSubscribedVal = 100
+	minStargazersVal = 300
+	minForksVal      = 30
+	minOpenIssuesVal = 3
+	maxStarred      = 100
+	maxSubscribed   = 100
+)
+
 
 // Context holds config information used to query GitHub.
 type Context struct {
 	Repo     string // Repository (:owner/:repo)
 	Token    string // Access token
 	CacheDir string // Cache directory
-	Mode     string // Analysis mode: "full" or "basic"
+	Mode     string // Analysis mode: "basic" or "full"
 
 	acceptHeader string // Optional Accept: header value
 }
@@ -164,7 +167,7 @@ type Repo struct {
 // meetsThresholds returns whether the repo meets any of the minimal
 // thresholds to qualify for contributor statistics querying.
 func (r *Repo) meetsThresholds() bool {
-	return r.StargazersCount > minStargazers || r.ForksCount > minForks || r.OpenIssues > minOpenIssues
+	return r.StargazersCount > minStargazersVal || r.ForksCount > minForksVal || r.OpenIssues > minOpenIssuesVal
 }
 
 // TotalCommits returns the total commits as well as additions
@@ -219,6 +222,21 @@ func (s *Stargazer) TotalCommits() (int, int, int) {
 // QueryAll recursively descends into GitHub API endpoints, starting
 // with the list of stargazers for the repo.
 func QueryAll(c *Context) error {
+	// Set the thresholds based on mode
+	if c.Mode == "basic" {
+		maxStarredVal = 0
+		maxSubscribedVal = 0
+		minStargazersVal = 0
+		minForksVal = 0
+		minOpenIssuesVal = 0
+	} else {
+		maxStarredVal = 100
+		maxSubscribedVal = 100
+		minStargazersVal = 300
+		minForksVal = 30
+		minOpenIssuesVal = 3
+	}
+
 	// Query all stargazers for the repo.
 	sg, err := QueryStargazers(c)
 	if err != nil {
@@ -246,14 +264,17 @@ func QueryAll(c *Context) error {
 		if err = QueryContributions(c, sg, rs); err != nil {
 			return err
 		}
+		return SaveState(c, sg, rs)
 	}
-
-	return SaveState(c, sg, rs)
+	
+	// For basic mode, just save what we have
+	return SaveState(c, sg, map[string]*Repo{})
 }
 
 // QueryStargazers queries the repo's stargazers API endpoint.
 // Returns the complete slice of stargazers.
 func QueryStargazers(c *Context) ([]*Stargazer, error) {
+	fmt.Printf("DEBUG: QueryStargazers\n")
 	cCopy := *c
 	cCopy.acceptHeader = "application/vnd.github.v3.star+json"
 	log.Printf("querying stargazers of repository %s", c.Repo)
@@ -262,13 +283,29 @@ func QueryStargazers(c *Context) ([]*Stargazer, error) {
 	var err error
 	fmt.Printf("*** 0 stargazers")
 	for len(url) > 0 {
+		
+		// Clean up malformed URL if needed
+		if strings.Contains(url, "rel=") {
+			parts := strings.Split(url, ",")
+			for _, part := range parts {
+				if strings.Contains(part, "rel=\"next\"") {
+					start := strings.Index(part, "<")
+					end := strings.Index(part, ">")
+					if start != -1 && end != -1 {
+						url = part[start+1:end]
+						break
+					}
+				}
+			}
+		}
+		
 		fetched := []*Stargazer{}
 		url, err = fetchURL(&cCopy, url, &fetched, true /* refresh last page of results */)
 		if err != nil {
 			return nil, err
 		}
 		stargazers = append(stargazers, fetched...)
-		fmt.Printf("\r*** %s stargazers", format(len(stargazers)))
+		fmt.Printf("\r*** %d stargazers", len(stargazers))
 	}
 	fmt.Printf("\n")
 	return stargazers, nil

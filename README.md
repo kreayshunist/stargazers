@@ -23,13 +23,13 @@ git clone https://github.com/YOUR_USERNAME/stargazers.git
 cd stargazers
 
 # Initialize Go module
+rm -rf go.mod go.sum
 go mod init github.com/YOUR_USERNAME/stargazers && go mod tidy
+go build
 ```
 
-In [`main.go`](main.go) change the import to your username:
-```go
-"github.com/YOUR_USERNAME/stargazers/cmd" // change to your username
-```
+In this repo search and replace `github.com/magmueller/stargazers/` with your username:
+
 
 ### 2. Configure GitHub Token
 1. Visit GitHub.com → Settings → Developer Settings → Personal Access Tokens
@@ -41,7 +41,7 @@ In [`main.go`](main.go) change the import to your username:
 
 You can run the tool in two modes:
 
-#### Basic Mode -Information about your stargazers (Email Collection)
+#### Basic Mode -Information about your stargazers (Email Collection) 
 ```bash
 # Only collect stargazer profiles and emails
 ./stargazers fetch --repo=OWNER/REPO --token=YOUR_TOKEN --mode=basic
@@ -83,13 +83,19 @@ Options:
       --no-color          Disable colored output
 ```
 
-### 5. Analysis Tools
+### 5. Changing the code
+If you change Go code, you need to recompile the program to make the changes effective. To do this do the initialization from above again:
+```bash
+go build
+```
+
+### 6. Analysis Tools
 
 I drafted some scripts to analyze the data - but depending on your use case I advise you to just generate your own.
 - **Data Visualization**: Plotting scripts in [`/utils`](utils)
 - **Email Generation**: AI-powered personalized intro generator in [`/emails`](emails). Rank your leads by the score. I also recommend to filter by region (just add to the system prompt).
 
-### 6. Email Sending Recommendations
+### 7. Email Sending Recommendations
 
 For sending emails, I used Instantly. Do not send more than 30 emails per email address per day to avoid being flagged as spam.
 1 email address cost there around 5 USD per month + 15 USD per year for the domain + 90 USD per month for the tool.

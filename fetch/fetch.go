@@ -25,7 +25,6 @@ import (
 	"net/http"
 	"regexp"
 	"strconv"
-	"strings"
 	"time"
 )
 
@@ -60,7 +59,8 @@ func (e *httpError) Error() string {
 }
 
 // linkRE provides parsing of the "Link" HTTP header directive.
-var linkRE = regexp.MustCompile(`<([^>]+)>;\s*rel="([^"]+)"`) // update to match new format
+var linkRE = regexp.MustCompile(`<([^>]+)>;\s*rel="next"`)
+
 
 // fetchURL fetches the specified URL. The cache (specified in
 // c.CacheDir) is consulted first and if not found, the specified URL
@@ -69,6 +69,7 @@ var linkRE = regexp.MustCompile(`<([^>]+)>;\s*rel="([^"]+)"`) // update to match
 // in the response cache. Returns the next URL if the result is paged
 // or an error on failure.
 func fetchURL(c *Context, url string, value interface{}, refresh bool) (string, error) {
+	
 	// Create request and add mandatory user agent and accept encoding headers.
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -87,9 +88,10 @@ func fetchURL(c *Context, url string, value interface{}, refresh bool) (string, 
 	var resp *http.Response
 	resp, err = getCache(c, req)
 	if err != nil {
-		return "", errors.New(fmt.Sprintf("getCache URL=%q: %s", url, err))
+		return "", fmt.Errorf("getCache URL=%q: %s", url, err)
 	}
 
+	
 	// We loop until we have a next URL or we've gotten a direct result
 	// by fetching from the server; the last result might change between
 	// runs, so it must be rechecked.
@@ -124,21 +126,17 @@ func fetchURL(c *Context, url string, value interface{}, refresh bool) (string, 
 			}
 		}
 		if resp == nil {
-			log.Printf("unable to fetch %q", url)
 			return "", nil
 		}
 
 		// Parse the next link, if available.
 		if link := resp.Header.Get("Link"); len(link) > 0 {
-			links := strings.Split(link, ",")
-			for _, l := range links {
-				matches := linkRE.FindStringSubmatch(strings.TrimSpace(l))
-				if len(matches) == 3 && matches[2] == "next" {
-					next = matches[1]
-					break
-				}
+			matches := linkRE.FindStringSubmatch(link)
+			if len(matches) == 2 {
+				next = matches[1]
 			}
 		}
+
 		// If there is no next page and we used cached; clear resp for
 		// explicit re-fetch.
 		if len(next) > 0 || !cached || !refresh {
