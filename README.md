@@ -70,7 +70,7 @@ The modes automatically set the appropriate parameters:
   - Maps contribution patterns
   - Higher API usage
   - Provides complete analysis data
-  - analyse with: `./stargazers analyze --repo=OWNER/REPO --token=YOUR_TOKEN --mode=full`
+  
 
 
 ## 🛠 Advanced Options
@@ -92,6 +92,14 @@ go build
 ```
 
 ### 6. Analysis Tools
+
+Run this to get csv from your cached profiles:
+```bash
+./stargazers analyze --repo=OWNER/REPO
+````
+
+Then you find the csvs in `./stargazer_cache/OWNER_REPO/`.
+
 
 I drafted some scripts to analyze the data - but depending on your use case I advise you to just generate your own.
 - **Data Visualization**: Plotting scripts in [`/utils`](utils)

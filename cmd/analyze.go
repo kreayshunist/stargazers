@@ -45,15 +45,20 @@ following analyses are run:
 	RunE:    RunAnalyze,
 }
 
+func init() {
+	AnalyzeCmd.Flags().String("repo", "", "repository in the format :owner/:repo")
+}
+
 // RunAnalyze fetches saved stargazer info for the specified repo and
 // runs the analysis reports.
 func RunAnalyze(cmd *cobra.Command, args []string) error {
-	if len(Repo) == 0 {
+	repo, err := cmd.Flags().GetString("repo")
+	if err != nil || len(repo) == 0 {
 		return errors.New("repository not specified; use --repo=:owner/:repo")
 	}
-	log.Printf("fetching saved GitHub stargazer data for repository %s", Repo)
+	log.Printf("fetching saved GitHub stargazer data for repository %s", repo)
 	fetchCtx := &fetch.Context{
-		Repo:     Repo,
+		Repo:     repo,
 		CacheDir: CacheDir,
 	}
 	sg, rs, err := fetch.LoadState(fetchCtx)
@@ -61,7 +66,7 @@ func RunAnalyze(cmd *cobra.Command, args []string) error {
 		log.Printf("failed to load saved stargazer data: %s", err)
 		return nil
 	}
-	log.Printf("analyzing GitHub data for repository %s", Repo)
+	log.Printf("analyzing GitHub data for repository %s", repo)
 	if err := analyze.RunAll(fetchCtx, sg, rs); err != nil {
 		log.Printf("failed to query stargazer data: %s", err)
 		return nil
