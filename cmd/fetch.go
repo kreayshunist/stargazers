@@ -45,12 +45,13 @@ func NewContext(repo, token, cacheDir, mode string) *ExtendedContext {
     }
 }
 
-// GetBaseContext returns the underlying Context for compatibility
-func (ec *ExtendedContext) GetBaseContext() *fetch.Context {
+// GetBaseContext returns the base Context for fetch operations
+func (c *ExtendedContext) GetBaseContext() *fetch.Context {
     return &fetch.Context{
-        Repo:     ec.Repo,
-        Token:    ec.Token,
-        CacheDir: ec.CacheDir,
+        Repo:     c.Repo,
+        Token:    c.Token,
+        CacheDir: c.CacheDir,
+        Mode:     c.Mode,
     }
 }
 
