@@ -93,6 +93,7 @@ go build
 
 I drafted some scripts to analyze the data - but depending on your use case I advise you to just generate your own.
 - **Data Visualization**: Plotting scripts in [`/utils`](utils)
+- **Data cleaning**: In  `emails/OWNER_REPO_emails.csv` are all your stargazers. Around 20% should have emails. Filter them our.
 - **Email Generation**: AI-powered personalized intro generator in [`/emails`](emails). Rank your leads by the score. I also recommend to filter by region (just add to the system prompt).
 
 ### 7. Email Sending Recommendations
