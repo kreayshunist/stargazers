@@ -17,7 +17,7 @@ Stargazer Analytics helps you understand and connect with the developers who sta
 ## 🚀 Quick Start
 
 ### 1. Setup
-In this repo search and replace `github.com/magmueller/stargazers` and `github.com/YOUR_USERNAME/stargazers` with your username.
+In this repo search and replace `github.com/kreayshunist/stargazers` and `github.com/YOUR_USERNAME/stargazers` with your username.
 
 ```bash
 # Clone the repository
