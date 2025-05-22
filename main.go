@@ -112,6 +112,7 @@ func init() {
 	cmd.FetchCmd.Flags().StringVarP(&cmd.AccessToken, "token", "t", "", "GitHub access token")
 	cmd.FetchCmd.Flags().StringVarP(&cmd.CacheDir, "cache", "c", "./stargazer_cache", "Cache directory")
 	cmd.FetchCmd.Flags().StringVarP(&cmd.Mode, "mode", "m", "basic", "Analysis mode: 'basic' or 'full'")
+	cmd.FetchCmd.Flags().BoolVarP(&cmd.GraphQL, "graphql", "g", false, "Use GraphQL API instead of REST API")
 }
 
 // Run ...

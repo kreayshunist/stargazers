@@ -6,4 +6,5 @@ var (
     AccessToken string
     CacheDir    string
     Mode        string
+    GraphQL     bool
 )

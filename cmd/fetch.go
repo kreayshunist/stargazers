@@ -66,8 +66,12 @@ each stargazer's followers, other starred repos, and subscribed
 repos. Each subscribed repo is further queried for that stargazer's
 contributions in terms of additions, deletions, and commits. All
 fetched data is cached by URL.
+
+Use --graphql flag to switch from REST API to GraphQL API for
+significantly reduced API calls and improved performance with large
+repositories.
 `,
-	Example: `  stargazers fetch --repo=cockroachdb/cockroach --token=f87456b1112dadb2d831a5792bf2ca9a6afca7bc`,
+	Example: `  stargazers fetch --repo=cockroachdb/cockroach --token=f87456b1112dadb2d831a5792bf2ca9a6afca7bc --graphql`,
 	RunE:    RunFetch,
 }
 
@@ -90,9 +94,20 @@ func RunFetch(cmd *cobra.Command, args []string) error {
 	if err := validateMode(ctx); err != nil {
 		return err
 	}
-	if err := fetch.QueryAll(ctx.GetBaseContext()); err != nil {
-		log.Printf("failed to query stargazer data: %s", err)
-		return nil
+	
+	// Choose API interface based on GraphQL flag
+	if GraphQL {
+		log.Printf("using GraphQL API")
+		if err := fetch.QueryAllGraphQL(ctx.GetBaseContext()); err != nil {
+			log.Printf("failed to query stargazer data with GraphQL: %s", err)
+			return nil
+		}
+	} else {
+		log.Printf("using REST API")
+		if err := fetch.QueryAll(ctx.GetBaseContext()); err != nil {
+			log.Printf("failed to query stargazer data: %s", err)
+			return nil
+		}
 	}
 	return nil
 }
