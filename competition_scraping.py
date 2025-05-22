@@ -1,21 +1,22 @@
 import os
 import subprocess
+import argparse
 from pathlib import Path
 
 import pandas as pd
-from dotenv import load_dotenv
 
 
 def main():
-    # Load environment variables
-    load_dotenv()
-    github_token = os.getenv("GITHUB_TOKEN")
-
-    if not github_token:
-        raise ValueError("GITHUB_TOKEN not found in .env file")
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description='Scrape GitHub repository data.')
+    parser.add_argument('--token', required=True, help='GitHub API token')
+    parser.add_argument('--repos-csv', required=True, help='Path to CSV file containing repositories to scrape')
+    args = parser.parse_args()
+    
+    github_token = args.token
 
     # Read the repos CSV
-    df = pd.read_csv("output/repo_to_scrap.csv")
+    df = pd.read_csv(args.repos_csv)
 
     # Create cache directory if it doesn't exist
     Path("stargazer_cache").mkdir(exist_ok=True)
