@@ -12,7 +12,7 @@ Stargazer Analytics helps you understand and connect with the developers who sta
 - 🎯 **Interest Discovery**: Find what other repos your stargazers love
 - 📧 **Email Discovery**: Get emails of around 20% of your stargazers 
 - 📊 **Smart Scoring**: Auto-score how well each stargazer fits your project
-- 💌 **AI-Powered Intros**: Generate personalized outreach messages
+- 💌 **AI-Powered Intros**: Generate personalized outreach messages using your preferred LLM provider
 
 ## 🚀 Quick Start
 
@@ -102,7 +102,7 @@ Then you find the csvs in `./stargazer_cache/OWNER_REPO/`.
 I drafted some scripts to analyze the data - but depending on your use case I advise you to just generate your own.
 - **Data Visualization**: Plotting scripts in [`/utils`](utils)
 - **Data cleaning**: In  `emails/OWNER_REPO_emails.csv` are all your stargazers. Around 20% should have emails. Filter them our.
-- **Email Generation**: AI-powered personalized intro generator in [`/emails`](emails). Rank your leads by the score. I also recommend to filter by region (just add to the system prompt).
+- **Email Generation**: AI-powered personalized intro generator in [`/emails`](emails). Supports Azure OpenAI, OpenAI, Anthropic and Ollama. Rank your leads by the score. I also recommend to filter by region (just add to the system prompt).
 
 ### 7. Email Sending Recommendations
 
@@ -175,6 +175,20 @@ Several Python scripts are provided to enhance the functionality of Stargazer An
   # Usage: Edit input_file and output_file variables to point to your data
   python utils/filter_data.py
   ```
+- [`emails/create_personlized_message.py`](emails/create_personlized_message.py): Generate personalized introductions with your chosen LLM provider.
+  ```bash
+  # Requirements: requests, python-dotenv and one of openai or anthropic depending on provider
+  # Setup: create a .env file with LLM_PROVIDER and corresponding API keys
+  python emails/create_personlized_message.py
+  ```
+
+#### LLM configuration
+Set `LLM_PROVIDER` in your environment or `.env` file to one of `azure`, `openai`, `anthropic`, or `ollama`. Depending on the provider you also need to supply the corresponding keys:
+
+- **azure**: `AZURE_OPENAI_ENDPOINT`, `AZURE_OPENAI_KEY`, optional `AZURE_OPENAI_MODEL` and `AZURE_OPENAI_API_VERSION`
+- **openai**: `OPENAI_API_KEY`, optional `OPENAI_MODEL`
+- **anthropic**: `ANTHROPIC_API_KEY`, optional `ANTHROPIC_MODEL` (default `claude-3.5-sonnet-20240925`)
+- **ollama**: `OLLAMA_ENDPOINT` (default `http://localhost:11434`), `OLLAMA_MODEL`
 
 ### Usage Workflow
 1. First collect stargazer data using the Go tool:
