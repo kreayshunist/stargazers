@@ -1,16 +1,82 @@
 import os
+import json
+from typing import List, Dict
 
 import pandas as pd
+from dotenv import load_dotenv
+
+load_dotenv()
 
 df = pd.read_csv("emails/all_competitors_filtered.csv")
 
-from openai import AzureOpenAI
+PROVIDER = os.getenv("LLM_PROVIDER", "azure").lower()
 
-client = AzureOpenAI(
-    api_version="2024-10-21",
-    azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT", ""),
-    api_key=os.getenv("AZURE_OPENAI_KEY", ""),
-)
+chat_completion = None  # type: ignore
+
+if PROVIDER == "azure":
+    from openai import AzureOpenAI
+
+    client = AzureOpenAI(
+        api_version=os.getenv("AZURE_OPENAI_API_VERSION", "2024-10-21"),
+        azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT", ""),
+        api_key=os.getenv("AZURE_OPENAI_KEY", ""),
+    )
+
+    def chat_completion(messages: List[Dict[str, str]]) -> str:
+        response = client.chat.completions.create(
+            model=os.getenv("AZURE_OPENAI_MODEL", "gpt-4o"),
+            messages=messages,
+            response_format={"type": "json_object"},
+            temperature=0.7,
+        )
+        return response.choices[0].message.content
+
+elif PROVIDER == "openai":
+    from openai import OpenAI
+
+    client = OpenAI(api_key=os.getenv("OPENAI_API_KEY", ""))
+
+    def chat_completion(messages: List[Dict[str, str]]) -> str:
+        response = client.chat.completions.create(
+            model=os.getenv("OPENAI_MODEL", "gpt-4o"),
+            messages=messages,
+            response_format={"type": "json_object"},
+            temperature=0.7,
+        )
+        return response.choices[0].message.content
+
+elif PROVIDER == "anthropic":
+    import anthropic
+
+    client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY", ""))
+
+    def chat_completion(messages: List[Dict[str, str]]) -> str:
+        response = client.messages.create(
+            model=os.getenv("ANTHROPIC_MODEL", "claude-3.5-sonnet-20240925"),
+            messages=[{"role": m["role"], "content": m["content"]} for m in messages],
+            max_tokens=1000,
+            temperature=0.7,
+        )
+        return response.content[0].text
+
+elif PROVIDER == "ollama":
+    import requests
+
+    endpoint = os.getenv("OLLAMA_ENDPOINT", "http://localhost:11434")
+    model = os.getenv("OLLAMA_MODEL", "llama3")
+
+    def chat_completion(messages: List[Dict[str, str]]) -> str:
+        resp = requests.post(
+            f"{endpoint}/api/chat",
+            json={"model": model, "messages": messages},
+            timeout=60,
+        )
+        resp.raise_for_status()
+        data = resp.json()
+        return data.get("message", {}).get("content", "")
+
+else:
+    raise ValueError(f"Unsupported LLM_PROVIDER: {PROVIDER}")
 
 n = 100
 
@@ -64,17 +130,12 @@ Rules:
         },
     ]
     try:
-        response = client.chat.completions.create(
-            model="gpt-4o",
-            messages=messages,
-            response_format={"type": "json_object"},
-            temperature=0.7,
-        )
+        response_content = chat_completion(messages)
 
         # Parse JSON response (will be in format {username1: message1, username2: message2, ...})
         import json
 
-        user_dict = json.loads(response.choices[0].message.content)
+        user_dict = json.loads(response_content)
         # Map the messages back to the dataframe order
         intros_list = [
             user_dict.get(username, {}).get("intro", "") for username in chunk["Login"]
