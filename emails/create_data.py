@@ -69,8 +69,8 @@ def count_duplicate_emails(df: pd.DataFrame):
     return df.duplicated(subset=["Email"]).sum()
 
 
-data_dir = "email_reachout"
-output_dir = "emails"
+data_dir = "emails"
+output_dir = "email_reachout"
 combined_df = combine_csv_files(data_dir, os.path.join(output_dir, "all.csv"))
 df = filter_data(combined_df, os.path.join(output_dir, "all_competitors_filtered.csv"))
 print(count_duplicate_emails(df))
