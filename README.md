@@ -175,6 +175,15 @@ Several Python scripts are provided to enhance the functionality of Stargazer An
   # Usage: Edit input_file and output_file variables to point to your data
   python utils/filter_data.py
   ```
+- [`send_to_supabase.py`](send_to_supabase.py): Upload stargazer records that contain an email address to your Supabase project.
+  ```bash
+  # Requirements: requests, python-dotenv
+  # Provide the full Supabase REST endpoint (including domain and table path) and API key
+  python send_to_supabase.py --repo=OWNER/REPO \
+    --supabase-url=https://YOUR-SUPABASE-DOMAIN/rest/v1/stargazers \
+    --supabase-key=YOUR_SUPABASE_KEY
+  # Alternatively set SUPABASE_URL and SUPABASE_KEY in a .env file
+  ```
 
 ### Usage Workflow
 1. First collect stargazer data using the Go tool:
